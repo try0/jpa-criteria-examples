@@ -11,6 +11,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
 import org.junit.jupiter.api.AfterAll;
@@ -22,8 +24,10 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import jp.try0.jpa.criteria.example.entity.UserAccount;
-import jp.try0.jpa.criteria.example.entity.UserAccount_;
+import jp.try0.jpa.criteria.example.entity.EMailAddress;
+import jp.try0.jpa.criteria.example.entity.EMailAddress_;
+import jp.try0.jpa.criteria.example.entity.User;
+import jp.try0.jpa.criteria.example.entity.User_;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class CriteriaApiExamples {
@@ -54,80 +58,82 @@ public class CriteriaApiExamples {
 		testInfo.getTestMethod().ifPresent(m -> logger.info(LOG_SEPARATOR + "end " + m.getName()));
 	}
 
-
-
 	@Test
 	public void selectAll() {
-
 		EntityManager em = factory.createEntityManager();
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<UserAccount> query = builder.createQuery(UserAccount.class);
-		Root<UserAccount> root = query.from(UserAccount.class);
+		CriteriaQuery<User> query = builder.createQuery(User.class);
+		Root<User> root = query.from(User.class);
 		query.select(root);
 
-		List<UserAccount> accounts = em.createQuery(query).getResultList();
+		List<User> accounts = em.createQuery(query).getResultList();
+
+		em.close();
 	}
 
 	@Test
 	public void multiSelect() {
-
 		EntityManager em = factory.createEntityManager();
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<UserAccount> query = builder.createQuery(UserAccount.class);
-		Root<UserAccount> root = query.from(UserAccount.class);
-		query.multiselect(root.get(UserAccount_.name));
+		CriteriaQuery<User> query = builder.createQuery(User.class);
+		Root<User> root = query.from(User.class);
+		query.multiselect(root.get(User_.name));
 
-		TypedQuery<UserAccount> typedQuery = em.createQuery(query);
+		TypedQuery<User> typedQuery = em.createQuery(query);
 		((org.eclipse.persistence.jpa.JpaQuery) typedQuery).getDatabaseQuery().dontMaintainCache();
-		List<UserAccount> accounts = typedQuery.getResultList();
+		List<User> accounts = typedQuery.getResultList();
 
+		em.close();
 	}
 
 	@Test
 	public void selectWithCondition() {
-
 		EntityManager em = factory.createEntityManager();
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<UserAccount> query = builder.createQuery(UserAccount.class);
-		Root<UserAccount> root = query.from(UserAccount.class);
+		CriteriaQuery<User> query = builder.createQuery(User.class);
+		Root<User> root = query.from(User.class);
 		query.select(root);
-		query.where(builder.equal(root.get(UserAccount_.userId), "0000"));
+		query.where(builder.equal(root.get(User_.userId), "0000"));
 
-		List<UserAccount> accounts = em.createQuery(query).getResultList();
+		List<User> accounts = em.createQuery(query).getResultList();
+
+		em.close();
 	}
 
 	@Test
 	public void update() {
-
 		EntityManager em = factory.createEntityManager();
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaUpdate<UserAccount> update = builder.createCriteriaUpdate(UserAccount.class);
-		Root<UserAccount> root = update.from(UserAccount.class);
-		update.set(root.get(UserAccount_.name), "new-name");
-		update.where(builder.equal(root.get(UserAccount_.userId), "0000"));
+		CriteriaUpdate<User> update = builder.createCriteriaUpdate(User.class);
+		Root<User> root = update.from(User.class);
+		update.set(root.get(User_.name), "new-name");
+		update.where(builder.equal(root.get(User_.userId), "0000"));
 
 		em.getTransaction().begin();
 		em.createQuery(update).executeUpdate();
 		em.getTransaction().commit();
+
+		em.close();
 	}
 
 	@Test
 	public void delete() {
-
 		EntityManager em = factory.createEntityManager();
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaDelete<UserAccount> delete = builder.createCriteriaDelete(UserAccount.class);
-		Root<UserAccount> root = delete.from(UserAccount.class);
-		delete.where(builder.equal(root.get(UserAccount_.userId), "0000"));
+		CriteriaDelete<User> delete = builder.createCriteriaDelete(User.class);
+		Root<User> root = delete.from(User.class);
+		delete.where(builder.equal(root.get(User_.userId), "0000"));
 
 		em.getTransaction().begin();
 		em.createQuery(delete).executeUpdate();
 		em.getTransaction().commit();
+
+		em.close();
 	}
 
 	@Test
@@ -136,10 +142,12 @@ public class CriteriaApiExamples {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
-		Root<UserAccount> root = countQuery.from(UserAccount.class);
+		Root<User> root = countQuery.from(User.class);
 		countQuery.select(builder.count(root));
 
 		Long count = em.createQuery(countQuery).getSingleResult();
+
+		em.close();
 	}
 
 	@Test
@@ -148,11 +156,12 @@ public class CriteriaApiExamples {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<Integer> maxQuery = builder.createQuery(Integer.class);
-		Root<UserAccount> root = maxQuery.from(UserAccount.class);
-		maxQuery.select(builder.max(root.get(UserAccount_.userNumber)));
+		Root<User> root = maxQuery.from(User.class);
+		maxQuery.select(builder.max(root.get(User_.userNumber)));
 
 		Integer maxUserNumber = em.createQuery(maxQuery).getSingleResult();
 
+		em.close();
 	}
 
 	@Test
@@ -161,9 +170,43 @@ public class CriteriaApiExamples {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<Integer> maxQuery = builder.createQuery(Integer.class);
-		Root<UserAccount> root = maxQuery.from(UserAccount.class);
-		maxQuery.select(builder.min(root.get(UserAccount_.userNumber)));
+		Root<User> root = maxQuery.from(User.class);
+		maxQuery.select(builder.min(root.get(User_.userNumber)));
 
 		Integer minUserNumber = em.createQuery(maxQuery).getSingleResult();
+
+		em.close();
+	}
+
+	@Test
+	public void leftJoin() {
+		EntityManager em = factory.createEntityManager();
+
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<User> query = builder.createQuery(User.class);
+		Root<User> root = query.from(User.class);
+		query.select(root);
+		Join<User, EMailAddress> join = root.join(User_.eMailAddresses, JoinType.LEFT);
+		query.where(builder.like(join.get(EMailAddress_.eMailAddress), "a%"));
+
+		List<User> accounts = em.createQuery(query).getResultList();
+
+		em.close();
+	}
+
+	@Test
+	public void innerJoin() {
+		EntityManager em = factory.createEntityManager();
+
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<User> query = builder.createQuery(User.class);
+		Root<User> root = query.from(User.class);
+		query.select(root);
+		Join<User, EMailAddress> join = root.join(User_.eMailAddresses, JoinType.INNER);
+		query.where(builder.like(join.get(EMailAddress_.eMailAddress), "a%"));
+
+		List<User> accounts = em.createQuery(query).getResultList();
+
+		em.close();
 	}
 }
