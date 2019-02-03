@@ -28,6 +28,9 @@ public class User implements Serializable {
 	@Column(name = "user_number")
 	private Integer userNumber;
 
+	@Column(name = "age")
+	private Integer age;
+
 	@OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST })
 	private List<EMailAddress> eMailAddresses;
 
@@ -64,5 +67,13 @@ public class User implements Serializable {
 
 	public void setUserNumber(Integer userNumber) {
 		this.userNumber = userNumber;
+	}
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public void setAge(Integer age) {
+		this.age = age;
 	}
 }

@@ -10,6 +10,7 @@ public class User_ {
 	public static volatile SingularAttribute<User, String> name;
 	public static volatile SingularAttribute<User, String> password;
 	public static volatile SingularAttribute<User, Integer> userNumber;
+	public static volatile SingularAttribute<User, Integer> age;
 
 	public static volatile ListAttribute<User, EMailAddress> eMailAddresses;
 }
