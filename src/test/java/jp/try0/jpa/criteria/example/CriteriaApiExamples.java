@@ -190,11 +190,11 @@ public class CriteriaApiExamples {
 		EntityManager em = factory.createEntityManager();
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<Integer> maxQuery = builder.createQuery(Integer.class);
-		Root<User> root = maxQuery.from(User.class);
-		maxQuery.select(builder.min(root.get(User_.age)));
+		CriteriaQuery<Integer> minQuery = builder.createQuery(Integer.class);
+		Root<User> root = minQuery.from(User.class);
+		minQuery.select(builder.min(root.get(User_.age)));
 
-		Integer minUserAge = em.createQuery(maxQuery).getSingleResult();
+		Integer minUserAge = em.createQuery(minQuery).getSingleResult();
 
 		em.close();
 	}
@@ -205,11 +205,11 @@ public class CriteriaApiExamples {
 		EntityManager em = factory.createEntityManager();
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<Double> maxQuery = builder.createQuery(Double.class);
-		Root<User> root = maxQuery.from(User.class);
-		maxQuery.select(builder.avg(root.get(User_.age)));
+		CriteriaQuery<Double> avgQuery = builder.createQuery(Double.class);
+		Root<User> root = avgQuery.from(User.class);
+		avgQuery.select(builder.avg(root.get(User_.age)));
 
-		Double avgUserAge = em.createQuery(maxQuery).getSingleResult();
+		Double avgUserAge = em.createQuery(avgQuery).getSingleResult();
 
 		em.close();
 	}
