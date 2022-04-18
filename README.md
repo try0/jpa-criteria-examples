@@ -8,7 +8,7 @@ EclipseLink, H2DB
 [examples](https://github.com/try0/jpa-criteria-examples/blob/master/src/test/java/jp/try0/jpa/criteria/example/CriteriaApiExamples.java)
 
 
-When Junit is run, a table is created in in-memory h2db and the executed sql is output to the log.
+When run Junit, tables are created in in-memory h2db and the executed sql is output to the log.
 ```
 情報: start initialize [土 4月 16 21:14:44 JST 2022]
 [EL Info]: 2022-04-16 21:14:45.826--ServerSession(1659309731)--EclipseLink, version: Eclipse Persistence Services - 2.7.10.v20211216-fe64cd39c3
