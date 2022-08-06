@@ -361,8 +361,8 @@ public class CriteriaApiExamples {
 
 			query.where(builder.and(
 					builder.equal(root.get(User_.userId), rootUserGroup.get(UserGroup_.id).get(UserGroupPK_.userId)),
-					rootUserGroup.get(UserGroup_.id).get(UserGroupPK_.gorupId)
-							.in(Arrays.asList("groupId1", "groupId2"))));
+					rootUserGroup.get(UserGroup_.id).get(UserGroupPK_.groupId)
+							.in(Arrays.asList("gid1", "gid2"))));
 
 			List<User> usersBelongingToG1AndG2 = em.createQuery(query).getResultList();
 		});
