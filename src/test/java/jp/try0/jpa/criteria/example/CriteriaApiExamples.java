@@ -2,6 +2,8 @@ package jp.try0.jpa.criteria.example;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -34,8 +36,10 @@ import org.junit.runners.MethodSorters;
 
 import jp.try0.jpa.criteria.example.entity.EMailAddress;
 import jp.try0.jpa.criteria.example.entity.EMailAddress_;
+import jp.try0.jpa.criteria.example.entity.Group;
 import jp.try0.jpa.criteria.example.entity.User;
 import jp.try0.jpa.criteria.example.entity.UserGroup;
+import jp.try0.jpa.criteria.example.entity.UserGroupPK;
 import jp.try0.jpa.criteria.example.entity.UserGroupPK_;
 import jp.try0.jpa.criteria.example.entity.UserGroup_;
 import jp.try0.jpa.criteria.example.entity.User_;
@@ -67,12 +71,16 @@ public class CriteriaApiExamples {
 			throw e;
 		}
 
+		registerMockData();
+
 		logger.info("end initialize");
+
 	}
 
 	@BeforeEach
 	public void beforeEach(TestInfo testInfo) {
 		logger.info(LOG_SEPARATOR + " " + testInfo.getDisplayName() + " " + LOG_SEPARATOR);
+
 	}
 
 	@AfterAll
@@ -87,7 +95,7 @@ public class CriteriaApiExamples {
 		System.out.println("");
 	}
 
-	private void execute(Consumer<EntityManager> action) {
+	private static void execute(Consumer<EntityManager> action) {
 		EntityManager em = null;
 		try {
 			em = factory.createEntityManager();
@@ -99,6 +107,58 @@ public class CriteriaApiExamples {
 				em.close();
 			}
 		}
+	}
+
+	private static void registerMockData() {
+		execute(em -> {
+
+			var trans = em.getTransaction();
+			trans.begin();
+
+			try {
+				for (int i = 0; i < 5; i++) {
+
+					var iStr = String.valueOf(i);
+
+					Group group = new Group();
+					group.setGroupId("gid" + iStr);
+					group.setName("GroupName" + iStr);
+					em.persist(group);
+				}
+
+				for (int i = 0; i < 5; i++) {
+
+					var iStr = String.valueOf(i);
+
+					User user = new User();
+					user.setUserId("uid" + iStr);
+					user.setName("UserName" + iStr);
+					user.setAge(new Random().nextInt(100));
+					user.setPassword(UUID.randomUUID().toString().split("-")[0]);
+					user.setUserNumber(i);
+
+					em.persist(user);
+
+					EMailAddress emailAddress = new EMailAddress();
+					emailAddress.setUserId(user.getUserId());
+					emailAddress.seteMailAddress("EmailAddress" + iStr + "@example.com");
+					em.persist(emailAddress);
+
+					UserGroup userGroup = new UserGroup();
+					UserGroupPK userGroupId = new UserGroupPK();
+					userGroupId.setUserId(user.getUserId());
+					userGroupId.setGroupId("gid" + iStr);
+
+					userGroup.setId(userGroupId);
+					em.persist(userGroup);
+				}
+
+				trans.commit();
+			} catch (Exception e) {
+				trans.rollback();
+				throw e;
+			}
+		});
 	}
 
 	@DisplayName("Select All")
@@ -147,6 +207,19 @@ public class CriteriaApiExamples {
 
 	}
 
+	@DisplayName("Select Using Function")
+	@Test
+	public void selectUsingFunction() {
+		execute(em -> {
+			CriteriaBuilder builder = em.getCriteriaBuilder();
+			CriteriaQuery<Tuple> query = builder.createQuery(Tuple.class);
+			Root<User> root = query.from(User.class);
+			query.multiselect(root.get(User_.userId), builder.function("UUID", null));
+
+			List<Tuple> userIdWithUUID = em.createQuery(query).getResultList();
+		});
+	}
+
 	@DisplayName("Update")
 	@Test
 	public void update() {
@@ -162,7 +235,6 @@ public class CriteriaApiExamples {
 			em.getTransaction().commit();
 
 		});
-
 	}
 
 	@DisplayName("Delete")
