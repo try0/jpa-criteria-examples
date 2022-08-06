@@ -6,5 +6,5 @@ import javax.persistence.metamodel.StaticMetamodel;
 @StaticMetamodel(UserGroupPK.class)
 public class UserGroupPK_ {
 	public static volatile SingularAttribute<UserGroupPK, String> userId;
-	public static volatile SingularAttribute<UserGroupPK, String> gorupId;
+	public static volatile SingularAttribute<UserGroupPK, String> groupId;
 }
