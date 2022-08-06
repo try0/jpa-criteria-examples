@@ -1,5 +1,6 @@
 package jp.try0.jpa.criteria.example;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -34,6 +35,9 @@ import org.junit.runners.MethodSorters;
 import jp.try0.jpa.criteria.example.entity.EMailAddress;
 import jp.try0.jpa.criteria.example.entity.EMailAddress_;
 import jp.try0.jpa.criteria.example.entity.User;
+import jp.try0.jpa.criteria.example.entity.UserGroup;
+import jp.try0.jpa.criteria.example.entity.UserGroupPK_;
+import jp.try0.jpa.criteria.example.entity.UserGroup_;
 import jp.try0.jpa.criteria.example.entity.User_;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -268,6 +272,27 @@ public class CriteriaApiExamples {
 
 			List<User> accounts = em.createQuery(query).getResultList();
 
+		});
+
+	}
+
+	@DisplayName("Cross Join (No relations)")
+	@Test
+	public void noRelationJoin() {
+		execute(em -> {
+			CriteriaBuilder builder = em.getCriteriaBuilder();
+			CriteriaQuery<User> query = builder.createQuery(User.class);
+			Root<User> root = query.from(User.class);
+			query.select(root);
+
+			Root<UserGroup> rootUserGroup = query.from(UserGroup.class);
+
+			query.where(builder.and(
+					builder.equal(root.get(User_.userId), rootUserGroup.get(UserGroup_.id).get(UserGroupPK_.userId)),
+					rootUserGroup.get(UserGroup_.id).get(UserGroupPK_.gorupId)
+							.in(Arrays.asList("groupId1", "groupId2"))));
+
+			List<User> usersBelongingToG1AndG2 = em.createQuery(query).getResultList();
 		});
 
 	}
